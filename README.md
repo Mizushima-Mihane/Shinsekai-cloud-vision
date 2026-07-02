@@ -10,7 +10,6 @@ Let your AI see the screen — with auto/proactive screenshot, cloud vision API,
 | **Tool-based** | LLM calls `cloud_vision_describe(query)` when user asks to look at the screen |
 | **Auto Screenshot** | Timer: screenshot every N seconds, AI auto-replies |
 | **Proactive Screen** | Change detection: AI only replies when screen content changes |
-| **OmniParser Bridge** | If [mouse_control](https://github.com/pipi/mouse_control) is installed, attaches precise UI element coordinates to descriptions |
 
 ## Supported Vision Providers
 
