@@ -5,10 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from plugins.cloud_vision.config_model import CloudVisionConfig, default_config_path, save_config
-from sdk.types import FrontendConfigAction, FrontendConfigContribution
+from sdk.types import FrontendConfigContribution
 
-# ── Multimodal detection (duplicated from plugin.py to avoid circular import) ──
-
+# Multimodal detection patterns (duplicated to avoid circular import)
 _MULTIMODAL_PATTERNS: dict[str, tuple[str, ...]] = {
     "ChatGPT": ("gpt-4o", "gpt-4-vision", "gpt-4-turbo", "gpt-4.1"),
     "Claude": ("claude-3-5", "claude-3-opus", "claude-3-sonnet", "claude-4"),
@@ -43,8 +42,7 @@ def _get_current_llm_provider() -> str:
         return "ChatGPT"
 
 
-# ── Schema builder helper ────────────────────────────────────────────
-
+# Schema builder
 def _f(key: str, label: str, ftype: str, *,
        default=None, desc="", placeholder="",
        options=None, min_v=None, max_v=None, step=None, span=None) -> dict:
@@ -68,27 +66,7 @@ def _f(key: str, label: str, ftype: str, *,
     return f
 
 
-# ── Helpers ──────────────────────────────────────────────────────────
-
-def _has_mouse_control() -> bool:
-    try:
-        __import__("plugins.mouse_control.plugin")
-        return True
-    except ImportError:
-        return False
-
-
-def _action_sync_offset() -> dict:
-    import json
-    p = Path("data/plugins/com.shinsekai.mouse_control/omniparser_config.json")
-    if not p.is_file():
-        return {"message": "Mouse Control plugin config not found."}
-    raw = json.loads(p.read_text(encoding="utf-8"))
-    ox = int(raw.get("offset_x_px", raw.get("offset_x", 0)))
-    oy = int(raw.get("offset_y_px", raw.get("offset_y", 0)))
-    return {"message": f"Synced offset: x={ox}, y={oy}"}
-
-
+# Config save helper
 def _save(values: dict, plugin_root: Path) -> None:
     auto = bool(values.get("auto_screenshot", False))
     proactive = bool(values.get("proactive_mode", False))
@@ -112,8 +90,7 @@ def _save(values: dict, plugin_root: Path) -> None:
     save_config(default_config_path(plugin_root), cfg)
 
 
-# ── Public API ───────────────────────────────────────────────────────
-
+# Public API
 def make_frontend_config(cfg: CloudVisionConfig, plugin_root: Path) -> FrontendConfigContribution:
     llm_provider = _get_current_llm_provider()
     llm_model = _get_current_model(llm_provider)
@@ -124,19 +101,6 @@ def make_frontend_config(cfg: CloudVisionConfig, plugin_root: Path) -> FrontendC
         f"当前 LLM（{llm_provider} / {llm_model}）不支持多模态，需配置云端视觉 API。"
     )
 
-    actions = []
-    if _has_mouse_control():
-        actions.append(
-            FrontendConfigAction(
-                id="sync_omni_offset",
-                label="一键同步 OmniParser 偏移",
-                description="从 mouse_control 读取偏移量并同步。",
-                confirm="",
-                run=lambda values: _action_sync_offset(),
-                variant="primary",
-            )
-        )
-
     return FrontendConfigContribution(
         page_id="cloud_vision",
         title="Cloud Vision",
@@ -146,20 +110,19 @@ def make_frontend_config(cfg: CloudVisionConfig, plugin_root: Path) -> FrontendC
         schema=_SCHEMA,
         load_values=lambda: cfg.to_dict(),
         save_values=lambda values: _save(values, plugin_root),
-        actions=actions,
+        actions=[],
         order=85.0,
     )
 
 
-# ── Schema ───────────────────────────────────────────────────────────
-
+# Schema
 _SCHEMA = [
     {
         "id": "cloud_api",
-        "title": "📡 云端视觉 API（主 LLM 不支持多模态时启用）",
+        "title": "云端视觉 API（主 LLM 不支持多模态时启用）",
         "fields": [
             _f("use_cloud_api", "是否开启云端识图", "boolean", default=True,
-               desc="关闭后截图直接传给多模态 LLM，不经过云端视觉 API（需 LLM 支持多模态）。"),
+               desc="关闭后截图直接传给多模态 LLM（需 LLM 支持多模态）。"),
             _f("vision_provider", "服务商", "select", default="openai",
                options=[
                    ("OpenAI 兼容（通用）", "openai_compatible"),
@@ -169,8 +132,7 @@ _SCHEMA = [
                    ("通义千问 VL (阿里云)", "qwen"),
                    ("智谱 GLM-4V", "zhipu"),
                    ("豆包视觉 (火山引擎)", "doubao"),
-               ],
-               desc="选择用于识屏的云端视觉模型。"),
+               ]),
             _f("vision_base_url", "基础网址", "url", placeholder="留空使用默认地址"),
             _f("vision_api_key", "API Key", "password", placeholder="留空则回退到全局 LLM API Key"),
             _f("vision_model", "模型 ID", "text", default="gpt-4o",
@@ -179,7 +141,7 @@ _SCHEMA = [
     },
     {
         "id": "auto_screenshot",
-        "title": "🖼️ 自动识屏（定时截图，AI 主动回复）",
+        "title": "自动识屏（定时截图，AI 主动回复）",
         "fields": [
             _f("auto_screenshot", "开启自动识屏", "boolean",
                desc="定时截图回复：每 N 秒截图一次，AI 主动发消息描述屏幕。"),
@@ -196,7 +158,7 @@ _SCHEMA = [
     },
     {
         "id": "proactive",
-        "title": "🔔 主动识屏（检测屏幕变化，AI 主动回复）",
+        "title": "主动识屏（检测屏幕变化，AI 主动回复）",
         "fields": [
             _f("proactive_mode", "开启主动识屏", "boolean",
                desc="检测屏幕变化后 AI 主动回复。开启时自动关闭上方自动识屏。"),
