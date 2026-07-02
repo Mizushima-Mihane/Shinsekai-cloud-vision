@@ -449,10 +449,11 @@ def _make_tool_registrar(cfg: CloudVisionConfig):
             tool_fn,
             name="cloud_vision_describe",
             description=(
-                "Capture the current screen and answer a question about it. "
+                "Capture the current screen and answer a question about what's visible. "
                 "Use when the user wants to know what's on screen — "
-                "e.g. 'what's on screen?', 'look at this error', "
-                "'translate the text', 'describe the scene', 'read that message'. "
+                "e.g. 'what's on screen?', 'look at this error', 'read that message', "
+                "'看看屏幕', '拍屏', '识别屏幕', '帮我看看', '屏幕上有什么', '看下桌面', "
+                "'截屏识别', '屏幕内容', '现在在干嘛', '这是什么'. "
                 "Pass the user's real question as the 'query' parameter."
             ),
             group="default",
