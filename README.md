@@ -1,7 +1,9 @@
 # Cloud Vision — Shinsekai Plugin
 
-Cloud-based screen recognition plugin for [Shinsekai](https://github.com/RachelForster/Shinsekai).  
-Let your AI see the screen — with auto/proactive screenshot, cloud vision API, and OmniParser integration.
+Cloud-based screen recognition for Shinsekai.  
+Auto + proactive screenshot, LLM-callable vision tool, 7 cloud vision providers.
+
+**Author:** pipi_
 
 ## Features
 
@@ -40,10 +42,6 @@ Let your AI see the screen — with auto/proactive screenshot, cloud vision API,
 ## Configuration
 
 Open **Settings → Cloud Vision** in the Shinsekai UI.
-
-## Author
-
-pipi_
 
 ## License
 
